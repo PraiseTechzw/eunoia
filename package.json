@@ -1,5 +1,5 @@
 {
-  "name": "my-v0-project",
+  "name": "eunoia",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -60,7 +60,6 @@
     "recharts": "2.15.0",
     "sonner": "^1.7.1",
     "tailwind-merge": "^2.5.5",
-    "tailwindcss": "latest",
     "tailwindcss-animate": "^1.0.7",
     "url": "latest",
     "vaul": "^0.9.6",
