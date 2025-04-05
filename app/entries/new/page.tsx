@@ -13,8 +13,9 @@ import { AdvancedEditor } from "@/components/advanced-editor"
 import { TagInput } from "@/components/tag-input"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Icons } from "@/components/icons"
-import { AIAssistant } from "@/components/ai-assistant"
+import { AIAssistant } from "@/components/enhanced-editor/ai-assistant"
 import { EntryTemplates } from "@/components/entry-templates"
+
 
 export default function NewEntryPage() {
   const [title, setTitle] = useState("")
@@ -87,10 +88,12 @@ export default function NewEntryPage() {
               </TabsContent>
               <TabsContent value="ai-assist" className="pt-4">
                 <AIAssistant
-                  onSuggestionApply={(suggestion) => {
+                  currentText={content}
+                  onInsert={(suggestion) => {
                     setContent(content + suggestion)
                     setActiveTab("write")
                   }}
+                  onCancel={() => setActiveTab("write")}
                 />
               </TabsContent>
             </Tabs>
