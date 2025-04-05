@@ -14,6 +14,9 @@ import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuIte
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@radix-ui/react-tabs"
 import { Drawer } from "vaul"
 import { DateRangePicker } from "@/components/date-range-picker"
+import { FilterPanel } from "@/components/filter-panel"
+import { DataTable } from "@/components/data-table"
+import { EntriesVisualizer } from "@/components/entries-visualizer"
 
 
 export default function EntriesPage() {
