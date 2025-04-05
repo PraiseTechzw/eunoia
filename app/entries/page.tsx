@@ -9,13 +9,12 @@ import { Badge } from "@/components/ui/badge"
 import { PenLine, Search, TagIcon, Filter, SlidersHorizontal } from "lucide-react"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { mockEntries } from "@/lib/mock-data"
+import { DrawerTrigger, DrawerContent } from "@/components/ui/drawer"
+import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@radix-ui/react-dropdown-menu"
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@radix-ui/react-tabs"
+import { Drawer } from "vaul"
 import { DateRangePicker } from "@/components/date-range-picker"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { DataTable } from "@/components/data-table"
-import { EntriesVisualizer } from "@/components/entries-visualizer"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
-import { Drawer, DrawerContent, DrawerTrigger } from "@/components/ui/drawer"
-import { FilterPanel } from "@/components/filter-panel"
+
 
 export default function EntriesPage() {
   const [searchQuery, setSearchQuery] = useState("")
