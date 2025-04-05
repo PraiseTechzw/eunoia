@@ -9,10 +9,9 @@ import { Badge } from "@/components/ui/badge"
 import { PenLine, Search, TagIcon, Filter, SlidersHorizontal } from "lucide-react"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { mockEntries } from "@/lib/mock-data"
-import { DrawerTrigger, DrawerContent } from "@/components/ui/drawer"
+import { Drawer } from "vaul"
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@radix-ui/react-dropdown-menu"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@radix-ui/react-tabs"
-import { Drawer } from "vaul"
 import { DateRangePicker } from "@/components/date-range-picker"
 import { FilterPanel } from "@/components/filter-panel"
 import { DataTable } from "@/components/data-table"
@@ -63,20 +62,19 @@ export default function EntriesPage() {
         </div>
 
         <div className="flex gap-2">
-          <Drawer>
-            <DrawerTrigger asChild>
+          <Drawer.Root>
+            <Drawer.Trigger asChild>
               <Button variant="outline" size="icon" className="h-10 w-10">
                 <Filter className="h-4 w-4" />
-                <span className="sr-only">Filter</span>
               </Button>
-            </DrawerTrigger>
-            <DrawerContent>
+            </Drawer.Trigger>
+            <Drawer.Content>
               <div className="p-4 max-w-md mx-auto">
                 <h3 className="text-lg font-medium mb-4">Filter Entries</h3>
                 <FilterPanel />
               </div>
-            </DrawerContent>
-          </Drawer>
+            </Drawer.Content>
+          </Drawer.Root>
 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
