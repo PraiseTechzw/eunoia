@@ -1,119 +1,146 @@
 "use client"
 
-import type React from "react"
-
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { useToast } from "@/hooks/use-toast"
-import { AdvancedEditor } from "@/components/advanced-editor"
+import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
+import { EnhancedEditor } from "@/components/enhanced-editor"
 import { TagInput } from "@/components/tag-input"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Icons } from "@/components/icons"
-import { AIAssistant } from "@/components/enhanced-editor/ai-assistant"
-import { EntryTemplates } from "@/components/entry-templates"
-
+import { useToast } from "@/hooks/use-toast"
+import { useSimulation } from "@/hooks/use-simulation"
+import { Save, X, ArrowLeft } from "lucide-react"
 
 export default function NewEntryPage() {
   const [title, setTitle] = useState("")
   const [content, setContent] = useState("")
   const [tags, setTags] = useState<string[]>([])
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [activeTab, setActiveTab] = useState("write")
+  const [hasChanges, setHasChanges] = useState(false)
   const router = useRouter()
   const { toast } = useToast()
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsSubmitting(true)
+  // Simulate saving entry
+  const {
+    execute: saveEntry,
+    isLoading: isSaving,
+    isSuccess,
+  } = useSimulation<any, [any]>("entries", "createEntry", false)
 
-    // In a real app, this would save to a database
-    setTimeout(() => {
-      setIsSubmitting(false)
+  // Handle content change
+  const handleContentChange = (newContent: string) => {
+    setContent(newContent)
+    setHasChanges(true)
+  }
+
+  // Handle save
+  const handleSave = async () => {
+    if (!title.trim()) {
+      toast({
+        title: "Title required",
+        description: "Please enter a title for your journal entry.",
+        variant: "destructive",
+      })
+      return
+    }
+
+    // Prepare entry data
+    const entryData = {
+      title,
+      content,
+      tags,
+      date: new Date().toISOString(),
+    }
+
+    try {
+      // Save entry
+      await saveEntry(entryData)
+
+      // Show success toast
       toast({
         title: "Entry saved",
         description: "Your journal entry has been saved successfully.",
       })
+
+      // Navigate back to entries list
       router.push("/entries")
-    }, 1000)
+    } catch (error) {
+      // Error is handled by useSimulation
+    }
+  }
+
+  // Handle cancel
+  const handleCancel = () => {
+    if (hasChanges) {
+      // In a real app, show a confirmation dialog
+      if (confirm("You have unsaved changes. Are you sure you want to discard them?")) {
+        router.back()
+      }
+    } else {
+      router.back()
+    }
   }
 
   return (
-    <div className="max-w-5xl mx-auto">
+    <div className="container py-6 max-w-4xl">
+      <div className="flex items-center mb-6">
+        <Button variant="ghost" onClick={() => router.back()} className="mr-4">
+          <ArrowLeft className="h-4 w-4 mr-2" />
+          Back
+        </Button>
+        <h1 className="text-3xl font-bold">New Journal Entry</h1>
+      </div>
+
       <Card>
-        <form onSubmit={handleSubmit}>
-          <CardHeader>
-            <CardTitle>New Journal Entry</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            <div className="space-y-2">
-              <Label htmlFor="title">Title</Label>
-              <Input
-                id="title"
-                placeholder="Give your entry a title"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                required
-              />
-            </div>
+        <CardHeader className="pb-4">
+          <Input
+            value={title}
+            onChange={(e) => {
+              setTitle(e.target.value)
+              setHasChanges(true)
+            }}
+            placeholder="Entry title"
+            className="text-xl font-medium border-none px-0 focus-visible:ring-0"
+          />
+        </CardHeader>
+        <CardContent>
+          <EnhancedEditor
+            value={content}
+            onChange={handleContentChange}
+            autoFocus
+            minHeight="400px"
+            onSave={handleSave}
+          />
 
-            <div className="space-y-2">
-              <Label htmlFor="tags">Tags</Label>
-              <TagInput tags={tags} setTags={setTags} />
-              <p className="text-sm text-muted-foreground">Press enter to add a tag</p>
-            </div>
+          <div className="mt-6">
+            <TagInput
+              tags={tags}
+              setTags={(newTags: string[]) => {
+                setTags(newTags)
+                setHasChanges(true)
+              }}
+            />
+          </div>
+        </CardContent>
+        <CardFooter className="flex justify-between">
+          <Button variant="outline" onClick={handleCancel}>
+            <X className="h-4 w-4 mr-2" />
+            Cancel
+          </Button>
 
-            <Tabs value={activeTab} onValueChange={setActiveTab}>
-              <TabsList className="grid grid-cols-3">
-                <TabsTrigger value="write">Write</TabsTrigger>
-                <TabsTrigger value="templates">Templates</TabsTrigger>
-                <TabsTrigger value="ai-assist">AI Assistant</TabsTrigger>
-              </TabsList>
-              <TabsContent value="write" className="pt-4">
-                <div className="space-y-2">
-                  <Label htmlFor="content">Journal Entry</Label>
-                  <AdvancedEditor value={content} onChange={setContent} />
-                </div>
-              </TabsContent>
-              <TabsContent value="templates" className="pt-4">
-                <EntryTemplates
-                  onSelect={(template) => {
-                    setContent(template.content)
-                    setActiveTab("write")
-                  }}
-                />
-              </TabsContent>
-              <TabsContent value="ai-assist" className="pt-4">
-                <AIAssistant
-                  currentText={content}
-                  onInsert={(suggestion) => {
-                    setContent(content + suggestion)
-                    setActiveTab("write")
-                  }}
-                  onCancel={() => setActiveTab("write")}
-                />
-              </TabsContent>
-            </Tabs>
-          </CardContent>
-          <CardFooter className="flex justify-between">
-            <Button type="button" variant="outline" onClick={() => router.back()}>
-              Cancel
-            </Button>
-            <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting ? (
-                <>
-                  <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />
-                  Saving...
-                </>
-              ) : (
-                "Save Entry"
-              )}
-            </Button>
-          </CardFooter>
-        </form>
+          <Button onClick={handleSave} disabled={isSaving}>
+            {isSaving ? (
+              <>
+                <div className="h-4 w-4 border-2 border-current border-t-transparent rounded-full animate-spin mr-2" />
+                Saving...
+              </>
+            ) : (
+              <>
+                <Save className="h-4 w-4 mr-2" />
+                Save Entry
+              </>
+            )}
+          </Button>
+        </CardFooter>
       </Card>
     </div>
   )

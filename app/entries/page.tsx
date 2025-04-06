@@ -9,14 +9,14 @@ import { Badge } from "@/components/ui/badge"
 import { PenLine, Search, TagIcon, Filter, SlidersHorizontal } from "lucide-react"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { mockEntries } from "@/lib/mock-data"
-import { Drawer } from "vaul"
-import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@radix-ui/react-dropdown-menu"
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@radix-ui/react-tabs"
 import { DateRangePicker } from "@/components/date-range-picker"
-import { FilterPanel } from "@/components/filter-panel"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { DataTable } from "@/components/data-table"
 import { EntriesVisualizer } from "@/components/entries-visualizer"
-
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import { Drawer, DrawerContent, DrawerTrigger } from "@/components/ui/drawer"
+import { FilterPanel } from "@/components/filter-panel"
+import { DateRange } from "react-day-picker"
 
 export default function EntriesPage() {
   const [searchQuery, setSearchQuery] = useState("")
@@ -62,19 +62,20 @@ export default function EntriesPage() {
         </div>
 
         <div className="flex gap-2">
-          <Drawer.Root>
-            <Drawer.Trigger asChild>
+          <Drawer>
+            <DrawerTrigger asChild>
               <Button variant="outline" size="icon" className="h-10 w-10">
                 <Filter className="h-4 w-4" />
+                <span className="sr-only">Filter</span>
               </Button>
-            </Drawer.Trigger>
-            <Drawer.Content>
+            </DrawerTrigger>
+            <DrawerContent>
               <div className="p-4 max-w-md mx-auto">
                 <h3 className="text-lg font-medium mb-4">Filter Entries</h3>
                 <FilterPanel />
               </div>
-            </Drawer.Content>
-          </Drawer.Root>
+            </DrawerContent>
+          </Drawer>
 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -116,7 +117,9 @@ export default function EntriesPage() {
             <TabsTrigger value="visual">Visualize</TabsTrigger>
           </TabsList>
 
-          <DateRangePicker />
+          <DateRangePicker onDateChange={function (date: DateRange): void {
+            throw new Error("Function not implemented.")
+          } } />
         </div>
 
         <TabsContent value="cards" className="mt-6">

@@ -272,15 +272,13 @@ export function SentimentTimeline({ entries }: SentimentTimelineProps) {
         
         dataset.data.forEach((value, index) => {
           const x = padding + (index / (dataset.data.length - 1)) * chartWidth;
-          const y = height  => {
-          const x = padding + (index / (dataset.data.length - 1)) * chartWidth;
           const y = height - padding - (value / 100) * chartHeight * currentProgress;
           
           if (index === 0) {
             ctx.moveTo(x, y);
           } else {
             ctx.lineTo(x, y);
-          }\
+          }
         });
         
         ctx.strokeStyle = dataset.color;

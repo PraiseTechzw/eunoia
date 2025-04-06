@@ -12,10 +12,10 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useToast } from "@/hooks/use-toast"
 import { Icons } from "@/components/icons"
-import { MFAVerification } from "@/components/auth/mfa-verification"
 import { BiometricAuth } from "@/components/auth/biometric-auth"
 import { Checkbox } from "@/components/ui/checkbox"
 import { useTranslation } from "@/hooks/use-translation"
+import { MFAVerification } from "@/components/mfa-verification"
 
 export default function Login() {
   const [isLoading, setIsLoading] = useState(false)

@@ -21,11 +21,10 @@ import {
 } from "lucide-react"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import { ImageUploader } from "@/components/image-uploader"
+import { EmojiPicker } from "@/components/emoji-picker"
 import { TableCreator } from "@/components/table-creator"
 import { LinkCreator } from "@/components/link-creator"
-import { EmojiPicker } from "@/components/emoji-picker"
-
+import { ImageUploader } from "@/components/image-uploader"
 
 interface AdvancedEditorProps {
   value: string

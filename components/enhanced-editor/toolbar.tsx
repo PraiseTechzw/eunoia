@@ -1,11 +1,7 @@
 "use client"
 
-import type React from "react"
-
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { useTranslation } from "@/hooks/use-translation"
 import {
   Bold,
@@ -19,22 +15,14 @@ import {
   Code,
   Table,
   Image,
-  LinkIcon,
-  AlignLeft,
-  AlignCenter,
-  AlignRight,
-  Type,
-  Paperclip,
-  Maximize2,
-  Minimize2,
-  Eye,
-  Edit3,
-  Check,
-  Map,
-  Music,
-  Video,
-  FileText,
   Sparkles,
+  Maximize,
+  Minimize,
+  Eye,
+  Edit,
+  Save,
+  SpellCheck,
+  X,
 } from "lucide-react"
 
 interface ToolbarProps {
@@ -45,6 +33,8 @@ interface ToolbarProps {
   distractionFree: boolean
   setMode: (mode: "write" | "preview") => void
   mode: "write" | "preview"
+  hasChanges?: boolean
+  onSave?: () => void
 }
 
 export function Toolbar({
@@ -55,218 +45,200 @@ export function Toolbar({
   distractionFree,
   setMode,
   mode,
+  hasChanges,
+  onSave,
 }: ToolbarProps) {
   const { t } = useTranslation()
 
   return (
-    <TooltipProvider delayDuration={300}>
-      <div className="flex flex-wrap gap-1 p-2 border-b bg-muted/50 items-center">
-        <ToolbarButton
-          tooltip={t("editor.toolbar.bold")}
-          shortcut="Ctrl+B"
-          onClick={() => onCommand("bold", "**Bold text**")}
-          icon={<Bold className="h-4 w-4" />}
-        />
-        <ToolbarButton
-          tooltip={t("editor.toolbar.italic")}
-          shortcut="Ctrl+I"
-          onClick={() => onCommand("italic", "*Italic text*")}
-          icon={<Italic className="h-4 w-4" />}
-        />
-        <ToolbarButton
-          tooltip={t("editor.toolbar.underline")}
-          shortcut="Ctrl+U"
-          onClick={() => onCommand("underline", "__Underlined text__")}
-          icon={<Underline className="h-4 w-4" />}
-        />
+    <div className="border-b p-1 flex items-center justify-between flex-wrap gap-1">
+      <div className="flex items-center flex-wrap gap-1">
+        <Tabs value={mode} onValueChange={(value) => setMode(value as "write" | "preview")}>
+          <TabsList className="h-8">
+            <TabsTrigger value="write" className="h-8 px-2 text-xs gap-1">
+              <Edit className="h-3.5 w-3.5" />
+              {t("editor.write")}
+            </TabsTrigger>
+            <TabsTrigger value="preview" className="h-8 px-2 text-xs gap-1">
+              <Eye className="h-3.5 w-3.5" />
+              {t("editor.preview")}
+            </TabsTrigger>
+          </TabsList>
+        </Tabs>
 
-        <ToolbarSeparator />
+        <div className="h-8 w-px bg-border mx-1" />
 
-        <ToolbarButton
-          tooltip={t("editor.toolbar.heading1")}
-          onClick={() => onCommand("h1", "# Heading 1")}
-          icon={<Heading1 className="h-4 w-4" />}
-        />
-        <ToolbarButton
-          tooltip={t("editor.toolbar.heading2")}
-          onClick={() => onCommand("h2", "## Heading 2")}
-          icon={<Heading2 className="h-4 w-4" />}
-        />
-
-        <ToolbarSeparator />
-
-        <ToolbarButton
-          tooltip={t("editor.toolbar.bulletList")}
-          onClick={() => onCommand("ul", "- List item\n- Another item")}
-          icon={<List className="h-4 w-4" />}
-        />
-        <ToolbarButton
-          tooltip={t("editor.toolbar.numberedList")}
-          onClick={() => onCommand("ol", "1. First item\n2. Second item")}
-          icon={<ListOrdered className="h-4 w-4" />}
-        />
-        <ToolbarButton
-          tooltip={t("editor.toolbar.quote")}
-          onClick={() => onCommand("quote", "> Quoted text")}
-          icon={<Quote className="h-4 w-4" />}
-        />
-
-        <ToolbarSeparator />
-
-        <ToolbarButton
-          tooltip={t("editor.toolbar.code")}
-          onClick={() => onCommand("code")}
-          icon={<Code className="h-4 w-4" />}
-        />
-        <ToolbarButton
-          tooltip={t("editor.toolbar.table")}
-          onClick={() => onCommand("table")}
-          icon={<Table className="h-4 w-4" />}
-        />
-
-        <Popover>
-          <PopoverTrigger asChild>
-            <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-              <Paperclip className="h-4 w-4" />
-              <span className="sr-only">{t("editor.toolbar.embed")}</span>
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent className="w-56 p-2">
-            <div className="grid grid-cols-3 gap-1">
-              <ToolbarButton
-                tooltip={t("editor.toolbar.image")}
-                onClick={() => onCommand("media", "image")}
-                icon={<Image className="h-4 w-4" />}
-              />
-              <ToolbarButton
-                tooltip={t("editor.toolbar.video")}
-                onClick={() => onCommand("media", "video")}
-                icon={<Video className="h-4 w-4" />}
-              />
-              <ToolbarButton
-                tooltip={t("editor.toolbar.audio")}
-                onClick={() => onCommand("media", "audio")}
-                icon={<Music className="h-4 w-4" />}
-              />
-              <ToolbarButton
-                tooltip={t("editor.toolbar.map")}
-                onClick={() => onCommand("media", "map")}
-                icon={<Map className="h-4 w-4" />}
-              />
-              <ToolbarButton
-                tooltip={t("editor.toolbar.file")}
-                onClick={() => onCommand("media", "file")}
-                icon={<FileText className="h-4 w-4" />}
-              />
-              <ToolbarButton
-                tooltip={t("editor.toolbar.link")}
-                onClick={() => onCommand("link", "[Link text](https://example.com)")}
-                icon={<LinkIcon className="h-4 w-4" />}
-              />
-            </div>
-          </PopoverContent>
-        </Popover>
-
-        <ToolbarSeparator />
-
-        <ToolbarButton
-          tooltip={t("editor.toolbar.alignLeft")}
-          onClick={() => onCommand("align", "left")}
-          icon={<AlignLeft className="h-4 w-4" />}
-        />
-        <ToolbarButton
-          tooltip={t("editor.toolbar.alignCenter")}
-          onClick={() => onCommand("align", "center")}
-          icon={<AlignCenter className="h-4 w-4" />}
-        />
-        <ToolbarButton
-          tooltip={t("editor.toolbar.alignRight")}
-          onClick={() => onCommand("align", "right")}
-          icon={<AlignRight className="h-4 w-4" />}
-        />
-
-        <ToolbarSeparator />
-
-        <ToolbarButton
-          tooltip={t("editor.toolbar.spellCheck")}
-          isActive={showSpellCheck}
-          onClick={() => onCommand("spellcheck")}
-          icon={<Check className="h-4 w-4" />}
-        />
-
-        <ToolbarButton
-          tooltip={t("editor.toolbar.aiAssist")}
-          onClick={() => onCommand("ai-assist")}
-          icon={<Sparkles className="h-4 w-4" />}
-        />
-
-        <div className="ml-auto flex items-center gap-2">
-          <ToolbarButton
-            tooltip={isFullscreen ? t("editor.toolbar.exitFullscreen") : t("editor.toolbar.fullscreen")}
-            shortcut="F11"
-            onClick={() => onCommand("fullscreen")}
-            icon={isFullscreen ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
-          />
-
-          <ToolbarButton
-            tooltip={t("editor.toolbar.distractionFree")}
-            shortcut="Ctrl+Shift+F"
-            onClick={() => onCommand("distraction-free")}
-            icon={<Type className="h-4 w-4" />}
-          />
-
-          <ToolbarSeparator />
-
-          <Tabs defaultValue={mode} onValueChange={(value) => setMode(value as "write" | "preview")}>
-            <TabsList className="h-8">
-              <TabsTrigger value="write" className="text-xs px-2 py-1">
-                <Edit3 className="h-3 w-3 mr-1" />
-                {t("editor.toolbar.write")}
-              </TabsTrigger>
-              <TabsTrigger value="preview" className="text-xs px-2 py-1">
-                <Eye className="h-3 w-3 mr-1" />
-                {t("editor.toolbar.preview")}
-              </TabsTrigger>
-            </TabsList>
-          </Tabs>
-        </div>
-      </div>
-    </TooltipProvider>
-  )
-}
-
-interface ToolbarButtonProps {
-  tooltip: string
-  icon: React.ReactNode
-  onClick: () => void
-  shortcut?: string
-  isActive?: boolean
-}
-
-function ToolbarButton({ tooltip, icon, onClick, shortcut, isActive }: ToolbarButtonProps) {
-  return (
-    <Tooltip>
-      <TooltipTrigger asChild>
         <Button
-          type="button"
           variant="ghost"
-          size="sm"
-          className={`h-8 w-8 p-0 ${isActive ? "bg-muted" : ""}`}
-          onClick={onClick}
+          size="icon"
+          className="h-8 w-8"
+          onClick={() => onCommand("bold")}
+          title={t("editor.bold")}
         >
-          {icon}
-          <span className="sr-only">{tooltip}</span>
+          <Bold className="h-4 w-4" />
+          <span className="sr-only">{t("editor.bold")}</span>
         </Button>
-      </TooltipTrigger>
-      <TooltipContent side="bottom">
-        <p>{tooltip}</p>
-        {shortcut && <p className="text-xs text-muted-foreground">{shortcut}</p>}
-      </TooltipContent>
-    </Tooltip>
-  )
-}
+        <Button
+          variant="ghost"
+          size="icon"
+          className="h-8 w-8"
+          onClick={() => onCommand("italic")}
+          title={t("editor.italic")}
+        >
+          <Italic className="h-4 w-4" />
+          <span className="sr-only">{t("editor.italic")}</span>
+        </Button>
+        <Button
+          variant="ghost"
+          size="icon"
+          className="h-8 w-8"
+          onClick={() => onCommand("underline")}
+          title={t("editor.underline")}
+        >
+          <Underline className="h-4 w-4" />
+          <span className="sr-only">{t("editor.underline")}</span>
+        </Button>
 
-function ToolbarSeparator() {
-  return <div className="w-px h-8 bg-border mx-1" />
+        <div className="h-8 w-px bg-border mx-1" />
+
+        <Button
+          variant="ghost"
+          size="icon"
+          className="h-8 w-8"
+          onClick={() => onCommand("h1")}
+          title={t("editor.heading1")}
+        >
+          <Heading1 className="h-4 w-4" />
+          <span className="sr-only">{t("editor.heading1")}</span>
+        </Button>
+        <Button
+          variant="ghost"
+          size="icon"
+          className="h-8 w-8"
+          onClick={() => onCommand("h2")}
+          title={t("editor.heading2")}
+        >
+          <Heading2 className="h-4 w-4" />
+          <span className="sr-only">{t("editor.heading2")}</span>
+        </Button>
+
+        <div className="h-8 w-px bg-border mx-1" />
+
+        <Button
+          variant="ghost"
+          size="icon"
+          className="h-8 w-8"
+          onClick={() => onCommand("ul")}
+          title={t("editor.bulletList")}
+        >
+          <List className="h-4 w-4" />
+          <span className="sr-only">{t("editor.bulletList")}</span>
+        </Button>
+        <Button
+          variant="ghost"
+          size="icon"
+          className="h-8 w-8"
+          onClick={() => onCommand("ol")}
+          title={t("editor.numberedList")}
+        >
+          <ListOrdered className="h-4 w-4" />
+          <span className="sr-only">{t("editor.numberedList")}</span>
+        </Button>
+        <Button
+          variant="ghost"
+          size="icon"
+          className="h-8 w-8"
+          onClick={() => onCommand("quote")}
+          title={t("editor.quote")}
+        >
+          <Quote className="h-4 w-4" />
+          <span className="sr-only">{t("editor.quote")}</span>
+        </Button>
+
+        <div className="h-8 w-px bg-border mx-1" />
+
+        <Button
+          variant="ghost"
+          size="icon"
+          className="h-8 w-8"
+          onClick={() => onCommand("code")}
+          title={t("editor.code")}
+        >
+          <Code className="h-4 w-4" />
+          <span className="sr-only">{t("editor.code")}</span>
+        </Button>
+        <Button
+          variant="ghost"
+          size="icon"
+          className="h-8 w-8"
+          onClick={() => onCommand("table")}
+          title={t("editor.table")}
+        >
+          <Table className="h-4 w-4" />
+          <span className="sr-only">{t("editor.table")}</span>
+        </Button>
+        <Button
+          variant="ghost"
+          size="icon"
+          className="h-8 w-8"
+          onClick={() => onCommand("media")}
+          title={t("editor.media")}
+        >
+          <Image className="h-4 w-4" />
+          <span className="sr-only">{t("editor.media")}</span>
+        </Button>
+        <Button
+          variant="ghost"
+          size="icon"
+          className="h-8 w-8"
+          onClick={() => onCommand("ai-assist")}
+          title={t("editor.aiAssist")}
+        >
+          <Sparkles className="h-4 w-4" />
+          <span className="sr-only">{t("editor.aiAssist")}</span>
+        </Button>
+      </div>
+
+      <div className="flex items-center gap-1">
+        {hasChanges && onSave && (
+          <Button variant="outline" size="sm" className="h-8 gap-1" onClick={onSave}>
+            <Save className="h-3.5 w-3.5" />
+            {t("editor.save")}
+          </Button>
+        )}
+
+        <Button
+          variant={showSpellCheck ? "default" : "ghost"}
+          size="icon"
+          className="h-8 w-8"
+          onClick={() => setShowSpellCheck(!showSpellCheck)}
+          title={t("editor.spellCheck")}
+        >
+          <SpellCheck className="h-4 w-4" />
+          <span className="sr-only">{t("editor.spellCheck")}</span>
+        </Button>
+        <Button
+          variant="ghost"
+          size="icon"
+          className="h-8 w-8"
+          onClick={() => onCommand("distraction-free")}
+          title={t("editor.distractionFree")}
+        >
+          <X className="h-4 w-4" />
+          <span className="sr-only">{t("editor.distractionFree")}</span>
+        </Button>
+        <Button
+          variant="ghost"
+          size="icon"
+          className="h-8 w-8"
+          onClick={() => onCommand("fullscreen")}
+          title={isFullscreen ? t("editor.exitFullscreen") : t("editor.fullscreen")}
+        >
+          {isFullscreen ? <Minimize className="h-4 w-4" /> : <Maximize className="h-4 w-4" />}
+          <span className="sr-only">{isFullscreen ? t("editor.exitFullscreen") : t("editor.fullscreen")}</span>
+        </Button>
+      </div>
+    </div>
+  )
 }
 
