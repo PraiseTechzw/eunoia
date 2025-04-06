@@ -62,7 +62,6 @@
     "readline": "latest",
     "url": "latest",
     "path": "latest",
-    "tailwindcss": "latest",
     "@tailwindcss/typography": "latest",
     "ai": "latest",
     "@ai-sdk/openai": "latest"

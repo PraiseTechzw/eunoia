@@ -8,7 +8,7 @@
 
 import { generateText } from "ai"
 import { openai } from "@ai-sdk/openai"
-import { entries, users, tags } from "./mock-data"
+import { mockEntries, mockTags, mockUser } from "./mock-data"
 
 // Simulated latency to make the app feel realistic
 const SIMULATED_LATENCY = {
@@ -21,41 +21,36 @@ const SIMULATED_LATENCY = {
 const SIMULATED_SUCCESS_RATE = 0.95 // 95% success rate
 
 // Utility to simulate network requests
-const simulateRequest = async <T>(\
-  data: T, 
+const simulateRequest = async <T>(
+  data: T,
   latency: () => number = SIMULATED_LATENCY.MEDIUM,
   successRate: number = SIMULATED_SUCCESS_RATE
-)
-: Promise<T> =>
-{
+): Promise<T> => {
   await new Promise((resolve) => setTimeout(resolve, latency()))
 
   if (Math.random() > successRate) {
     throw new Error("Simulated network error. Please try again.")
   }
 
-  return data;
+  return data
 }
 
 // Authentication simulation
 export const authService = {
   login: async (email: string, password: string) => {
-    const user = users.find((u) => u.email === email)
-
-    if (!user || user.password !== password) {
+    if (mockUser.email !== email) {
       await new Promise((resolve) => setTimeout(resolve, SIMULATED_LATENCY.MEDIUM()))
       throw new Error("Invalid email or password")
     }
 
     return simulateRequest({
-      user: { ...user, password: undefined },
+      user: { ...mockUser, password: undefined },
       token: `simulated-jwt-token-${Date.now()}`,
     })
   },
 
   register: async (userData: any) => {
-    // Check if email already exists
-    if (users.some((u) => u.email === userData.email)) {
+    if (mockUser.email === userData.email) {
       await new Promise((resolve) => setTimeout(resolve, SIMULATED_LATENCY.MEDIUM()))
       throw new Error("Email already in use")
     }
@@ -66,8 +61,6 @@ export const authService = {
       createdAt: new Date().toISOString(),
     }
 
-    // In a real app, we would save this user to the database
-    // For simulation, we'll just return the user
     return simulateRequest({
       user: { ...newUser, password: undefined },
       token: `simulated-jwt-token-${Date.now()}`,
@@ -79,9 +72,7 @@ export const authService = {
   },
 
   resetPassword: async (email: string) => {
-    const user = users.find((u) => u.email === email)
-
-    if (!user) {
+    if (mockUser.email !== email) {
       await new Promise((resolve) => setTimeout(resolve, SIMULATED_LATENCY.MEDIUM()))
       throw new Error("Email not found")
     }
@@ -93,13 +84,13 @@ export const authService = {
 // Journal entries simulation
 export const entriesService = {
   getEntries: async (filters: any = {}) => {
-    let filteredEntries = [...entries]
+    let filteredEntries = [...mockEntries]
 
     // Apply filters
     if (filters.search) {
       const searchLower = filters.search.toLowerCase()
       filteredEntries = filteredEntries.filter(
-        (entry) => entry.title.toLowerCase().includes(searchLower) || entry.content.toLowerCase().includes(searchLower),
+        (entry) => entry.title.toLowerCase().includes(searchLower) || entry.content.toLowerCase().includes(searchLower)
       )
     }
 
@@ -110,10 +101,10 @@ export const entriesService = {
     if (filters.dateRange) {
       const { from, to } = filters.dateRange
       if (from) {
-        filteredEntries = filteredEntries.filter((entry) => new Date(entry.createdAt) >= new Date(from))
+        filteredEntries = filteredEntries.filter((entry) => new Date(entry.date) >= new Date(from))
       }
       if (to) {
-        filteredEntries = filteredEntries.filter((entry) => new Date(entry.createdAt) <= new Date(to))
+        filteredEntries = filteredEntries.filter((entry) => new Date(entry.date) <= new Date(to))
       }
     }
 
@@ -125,16 +116,16 @@ export const entriesService = {
     if (filters.sortBy) {
       filteredEntries.sort((a, b) => {
         if (filters.sortBy === "date") {
-          return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+          return new Date(b.date).getTime() - new Date(a.date).getTime()
         }
         if (filters.sortBy === "sentiment") {
-          return b.sentiment - a.sentiment
+          return b.mood - a.mood
         }
         return 0
       })
     } else {
       // Default sort by date
-      filteredEntries.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+      filteredEntries.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
     }
 
     return simulateRequest({
@@ -144,7 +135,7 @@ export const entriesService = {
   },
 
   getEntry: async (id: string) => {
-    const entry = entries.find((e) => e.id === id)
+    const entry = mockEntries.find((e) => e.id === id)
 
     if (!entry) {
       await new Promise((resolve) => setTimeout(resolve, SIMULATED_LATENCY.SHORT()))
@@ -158,18 +149,17 @@ export const entriesService = {
     const newEntry = {
       id: `entry-${Date.now()}`,
       ...entryData,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
+      date: new Date().toISOString(),
+      lastEdited: new Date().toISOString(),
       // Simulate sentiment analysis
       sentiment: Math.random() * 2 - 1, // -1 to 1
     }
 
-    // In a real app, we would save this entry to the database
     return simulateRequest(newEntry, SIMULATED_LATENCY.MEDIUM)
   },
 
   updateEntry: async (id: string, entryData: any) => {
-    const entryIndex = entries.findIndex((e) => e.id === id)
+    const entryIndex = mockEntries.findIndex((e) => e.id === id)
 
     if (entryIndex === -1) {
       await new Promise((resolve) => setTimeout(resolve, SIMULATED_LATENCY.SHORT()))
@@ -177,52 +167,50 @@ export const entriesService = {
     }
 
     const updatedEntry = {
-      ...entries[entryIndex],
+      ...mockEntries[entryIndex],
       ...entryData,
-      updatedAt: new Date().toISOString(),
+      lastEdited: new Date().toISOString(),
     }
 
-    // In a real app, we would update this entry in the database
     return simulateRequest(updatedEntry)
   },
 
   deleteEntry: async (id: string) => {
-    const entryIndex = entries.findIndex((e) => e.id === id)
+    const entryIndex = mockEntries.findIndex((e) => e.id === id)
 
     if (entryIndex === -1) {
       await new Promise((resolve) => setTimeout(resolve, SIMULATED_LATENCY.SHORT()))
       throw new Error("Entry not found")
     }
 
-    // In a real app, we would delete this entry from the database
     return simulateRequest({ success: true })
   },
 
   getStats: async () => {
     // Calculate some realistic stats from our entries
-    const totalEntries = entries.length
-    const entriesThisWeek = entries.filter((e) => {
-      const entryDate = new Date(e.createdAt)
+    const totalEntries = mockEntries.length
+    const entriesThisWeek = mockEntries.filter((e) => {
+      const entryDate = new Date(e.date)
       const weekAgo = new Date()
       weekAgo.setDate(weekAgo.getDate() - 7)
       return entryDate >= weekAgo
     }).length
 
-    const entriesThisMonth = entries.filter((e) => {
-      const entryDate = new Date(e.createdAt)
+    const entriesThisMonth = mockEntries.filter((e) => {
+      const entryDate = new Date(e.date)
       const monthAgo = new Date()
       monthAgo.setMonth(monthAgo.getMonth() - 1)
       return entryDate >= monthAgo
     }).length
 
     const averageWordsPerEntry = Math.round(
-      entries.reduce((sum, entry) => sum + entry.content.split(/\s+/).length, 0) / totalEntries,
+      mockEntries.reduce((sum, entry) => sum + entry.wordCount, 0) / totalEntries
     )
 
     const sentimentDistribution = {
-      positive: entries.filter((e) => e.sentiment > 0.3).length,
-      neutral: entries.filter((e) => e.sentiment >= -0.3 && e.sentiment <= 0.3).length,
-      negative: entries.filter((e) => e.sentiment < -0.3).length,
+      positive: mockEntries.filter((e) => e.mood > 7).length,
+      neutral: mockEntries.filter((e) => e.mood >= 4 && e.mood <= 7).length,
+      negative: mockEntries.filter((e) => e.mood < 4).length,
     }
 
     const streakData = {
@@ -238,9 +226,9 @@ export const entriesService = {
       averageWordsPerEntry,
       sentimentDistribution,
       streakData,
-      topTags: tags.slice(0, 5).map((tag) => ({
-        name: tag,
-        count: Math.floor(Math.random() * 20) + 1,
+      topTags: mockTags.slice(0, 5).map((tag) => ({
+        name: tag.name,
+        count: tag.count,
       })),
     })
   },
@@ -286,13 +274,13 @@ export const aiService = {
   getSimilarEntries: async (entryId: string) => {
     // In a real app, this would use vector similarity search or other ML techniques
     // For simulation, we'll just return random entries
-    const currentEntry = entries.find((e) => e.id === entryId)
+    const currentEntry = mockEntries.find((e) => e.id === entryId)
     if (!currentEntry) {
       throw new Error("Entry not found")
     }
 
     // Filter out the current entry and get random entries
-    const otherEntries = entries.filter((e) => e.id !== entryId)
+    const otherEntries = mockEntries.filter((e) => e.id !== entryId)
     const randomEntries = otherEntries.sort(() => Math.random() - 0.5).slice(0, 3)
 
     return simulateRequest(
@@ -365,30 +353,34 @@ export const aiService = {
 export const tagsService = {
   getTags: async () => {
     return simulateRequest(
-      tags.map((tag) => ({
-        name: tag,
+      mockTags.map((tag) => ({
+        name: tag.name,
         count: Math.floor(Math.random() * 20) + 1,
       })),
     )
   },
 
   createTag: async (name: string) => {
-    if (tags.includes(name)) {
+    if (mockTags.some(tag => tag.name === name)) {
       await new Promise((resolve) => setTimeout(resolve, SIMULATED_LATENCY.SHORT()))
       throw new Error("Tag already exists")
     }
 
-    // In a real app, we would save this tag to the database
-    return simulateRequest({ name, count: 1 })
+    const newTag = {
+      id: `tag-${Date.now()}`,
+      name,
+      count: 1
+    }
+
+    return simulateRequest(newTag)
   },
 
   deleteTag: async (name: string) => {
-    if (!tags.includes(name)) {
+    if (!mockTags.some(tag => tag.name === name)) {
       await new Promise((resolve) => setTimeout(resolve, SIMULATED_LATENCY.SHORT()))
       throw new Error("Tag not found")
     }
 
-    // In a real app, we would delete this tag from the database
     return simulateRequest({ success: true })
   },
 }

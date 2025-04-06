@@ -164,9 +164,6 @@ export function SentimentTimeline({ entries }: SentimentTimelineProps) {
   
   // Get data for selected time range
   const getDataForTimeRange = (range: TimeRange) => {
-    // In a real app, this would filter data based on the time range
-    // For this demo, we'll just return different subsets of the mock data
-    
     const emotions = mockEmotions;
     
     switch (range) {
@@ -176,7 +173,8 @@ export function SentimentTimeline({ entries }: SentimentTimelineProps) {
           datasets: emotions.datasets.map(dataset => ({
             ...dataset,
             data: dataset.data.slice(-2)
-          }))
+          })),
+          dailyMood: emotions.dailyMood.slice(-2)
         };
       case "30d":
         return {
@@ -184,7 +182,8 @@ export function SentimentTimeline({ entries }: SentimentTimelineProps) {
           datasets: emotions.datasets.map(dataset => ({
             ...dataset,
             data: dataset.data.slice(-3)
-          }))
+          })),
+          dailyMood: emotions.dailyMood.slice(-3)
         };
       case "90d":
         return {
@@ -192,7 +191,8 @@ export function SentimentTimeline({ entries }: SentimentTimelineProps) {
           datasets: emotions.datasets.map(dataset => ({
             ...dataset,
             data: dataset.data.slice(-5)
-          }))
+          })),
+          dailyMood: emotions.dailyMood.slice(-5)
         };
       case "1y":
       case "all":
